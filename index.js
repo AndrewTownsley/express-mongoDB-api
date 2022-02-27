@@ -2,30 +2,20 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import { users } from './users.js';
-// import { messages } from './messages.js';
-
-const messages = {
-    1: {
-      id: '1',
-      text: 'Hello World',
-      userId: '1',
-    },
-    2: {
-      id: '2',
-      text: 'By World',
-      userId: '2',
-    },
-  };
+import { messages } from './messages.js';
+import { v4 as uuidv4 } from 'uuid';
 
 
 const app = express();
 app.use(cors());
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }));
 
 app.get('/users', (req, res) => {
     return res.send(Object.values(users))
 })
 
-app.get('/users/userId', (req, res) => {
+app.get('/users/:userId', (req, res) => {
     return res.send(users[req.params.userId])
 })
 
@@ -45,6 +35,9 @@ app.delete('/users/:userId', (req, res) => {
         `DELETE method on user/${req.params.userId} resource`)
 })
 
+/////// Messages ///////
+///////         ///////
+
 app.get('/messages', (req, res) => {
     return res.send(Object.values(messages))
 })
@@ -54,8 +47,14 @@ app.get('/messages/:messageId', (req, res) => {
         res.send(req.params)
 })
 
-app.post('/messages', (req, res) => {
-    return res.send('POST method on user resource')
+app.post('/messages/', (req, res) => {
+    const id = uuidv4();
+    const message = {
+        id,
+        text: req.body.text
+    }
+    messages[id] = message;
+    res.send(message)
 })
 
 app.put('/messages/:messageId', (req, res) => {
